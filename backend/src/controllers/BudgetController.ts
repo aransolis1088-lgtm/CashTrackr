@@ -1,6 +1,14 @@
 import type { Request, Response } from 'express'
 import Budget from '../models/Budget'
 
+declare global {
+    namespace Express {
+        interface Request {
+            budget?: Budget
+        }
+    }
+}
+
 export class BudgetController {
     static getAll = async (req: Request, res: Response) => {
         try {
@@ -29,23 +37,16 @@ export class BudgetController {
     }
 
     static getById = async (req: Request, res: Response) => {
-        try {
-            const { id } = req.params
-            const budget = await Budget.findByPk(Number(id))
-            if (!budget) {
-                return res.status(404).json({ error: 'Presupuesto no encontrado' })
-            }
-            res.json(budget)
-        } catch (error) {
-            res.status(500).json({ error: 'Hubo un error' })
-        }
+        res.json(req.budget)
     }
 
     static updateById = async (req: Request, res: Response) => {
-        console.log('Desde updateById budgetRouter')
+        await req.budget.update(req.body)
+        res.json('Presupuesto Actualizado Correctamente')
     }
 
     static deleteById = async (req: Request, res: Response) => {
-        console.log('Desde deleteById budgetRouter')
+        await req.budget.destroy()
+        res.json('Presupuesto Eliminado Correctamente')
     }
 }

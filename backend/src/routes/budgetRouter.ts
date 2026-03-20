@@ -1,30 +1,40 @@
 import { Router } from 'express'
-import { body, param } from 'express-validator'
 import { BudgetController } from '../controllers/BudgetController'
 import { handleInputErrors } from '../middleware/validation'
+import { validateBudgetExists, validateBudgetId, validateBudgetInput } from '../middleware/budget'
+import { ExpensesController } from '../controllers/ExpenseController'
 
 const router = Router()
+
+router.param('budgetId', validateBudgetId)
+router.param('budgetId', validateBudgetExists)
+
 
 router.get('/', BudgetController.getAll)
 
 router.post('/',
-    body('name')
-        .notEmpty().withMessage('El nombre del presupuesto no puede ir vacio '),
-    body('amount')
-        .notEmpty().withMessage('La cantidad del presupuesto no puede ir vacia ')
-        .isNumeric().withMessage('Cantidad no valida')
-        .custom(value => value>0).withMessage('Presupuesto debe ser mayor a 0'),
+    validateBudgetInput,
     handleInputErrors,
-    BudgetController.create)
-
-router.get('/:id', 
-    param('id').isInt().withMessage('ID no válido')
-    .custom(value => value>0).withMessage('ID no valido'),
-    handleInputErrors,
-    BudgetController.getById
+    BudgetController.create
 )
-router.put('/:id', BudgetController.updateById)
-router.delete('/:id', BudgetController.deleteById)
+
+router.get('/:budgetId', BudgetController.getById)
+
+router.put('/:budgetId',
+    validateBudgetInput,
+    handleInputErrors,
+    BudgetController.updateById
+)
+
+router.delete('/:budgetId', BudgetController.deleteById)
+
+/** Routes for expenses */
+router.get('/:budgetId/expenses', ExpensesController.getAll)
+router.post('/:budgetId/expenses', ExpensesController.create)
+router.get('/:budgetId/expenses/:expenseId', ExpensesController.getById)
+router.put('/:budgetId/expenses/:expenseId', ExpensesController.updateById)
+router.delete('/:budgetId/expenses/:expenseId', ExpensesController.deleteById)
+
 
 
 
