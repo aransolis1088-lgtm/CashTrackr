@@ -2,6 +2,14 @@ import { Request, Response, NextFunction } from 'express'
 import { param, validationResult, body } from 'express-validator'
 import Budget from '../models/Budget'
 
+declare global {
+    namespace Express {
+        interface Request {
+            budget?: Budget,
+        }
+    }
+}
+
 
 export const validateBudgetId = async (req: Request, res: Response, next: NextFunction) => {
     await param('budgetId').isInt().withMessage('ID no válido')
