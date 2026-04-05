@@ -2,6 +2,7 @@ import type { Request, Response } from 'express'
 import Expense from '../../../models/Expense'
 import { createRequest, createResponse } from 'node-mocks-http'
 import { ExpensesController } from '../../../controllers/ExpenseController'
+import { expenses } from '../../mocks/expense'
 
 jest.mock('../../../models/Expense', () => ({
     create: jest.fn()
@@ -55,7 +56,81 @@ describe('ExpenseController.create', () => {
         const data = res._getJSONData()
 
         expect(res.statusCode).toBe(500);
-        expect(data).toEqual({error: 'Hubo un error'});
+        expect(data).toEqual({ error: 'Hubo un error' });
         expect(expenseMock.save).not.toHaveBeenCalled()
+    })
+})
+
+describe('ExpenseController.getById', () => {
+    it('Should return expense wth ID 1', async () => {
+
+        const req = createRequest({
+            method: 'GET',
+            url: '/api/budgets/:budgetId/expenses/:expenseId',
+            expense: expenses[0]
+        })
+
+        const res = createResponse()
+        await ExpensesController.getById(req, res)
+
+        const data = res._getJSONData()
+        expect(res.statusCode).toBe(200)
+        expect(data).toEqual(expenses[0])
+    })
+})
+
+describe('ExpenseController.updateById', () => {
+    it('Should handle expense Update', async () => {
+
+        const expenseMock = {
+            ...expenses[0],
+            update: jest.fn().mockResolvedValue(true)
+        }
+
+        const req = createRequest({
+            method: 'PUT',
+            url: '/api/budgets/:budgetId/expenses/:expenseId',
+            expense: expenseMock,
+            body: { name: 'Updated Expense', amount: 100 }
+        })
+
+        const res = createResponse()
+        await ExpensesController.updateById(req, res)
+
+        const data = res._getJSONData()
+        expect(res.statusCode).toBe(200)
+        expect(data).toEqual('Se actualizó correctamente')
+        expect(expenseMock.update).toHaveBeenCalled()
+        expect(expenseMock.update).toHaveBeenCalledWith(req.body)
+        expect(expenseMock.update).toHaveBeenCalledTimes(1)
+
+
+    })
+})
+
+describe('ExpenseController.deleteByiD', () => {
+    it('Should delete expense and return a sucess message', async () => {
+
+        const expenseMock = {
+            ...expenses[0],
+            destroy: jest.fn()
+        }
+
+        const req = createRequest({
+            method: 'DELETE',
+            url: '/api/budgets/:budgetId/expenses/:expenseId',
+            expense: expenseMock
+        })
+
+        const res = createResponse()
+        await ExpensesController.deleteById(req, res)
+
+        const data = res._getJSONData()
+        expect(res.statusCode).toBe(200)
+        expect(data).toEqual('Gasto Eliminado')
+        expect(expenseMock.destroy).toHaveBeenCalled()
+        expect(expenseMock.destroy).toHaveBeenCalledTimes(1)
+
+
     })
 })
