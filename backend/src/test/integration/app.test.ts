@@ -97,3 +97,18 @@ describe('Authentication - Create Account', () => {
         expect(response.body.error).toBe('Un usuario con ese email ya está registrado.')
     })
 })
+
+describe('Authentication - Account Confirmation with Token', () => {
+    it('Should dispplay error if token is empty or token is not valid', async () => {
+        const response = await request(server)
+            .post('/api/auth/confirm-account')
+            .send({
+                token: 'not_valid'
+            })
+
+        expect(response.status).toBe(400)
+        expect(response.body).toHaveProperty('errors')
+        expect(response.body.errors).toHaveLength(1)
+        expect(response.body.errors[0].msg).toBe('Token no válido')
+    })
+})
