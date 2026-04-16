@@ -137,3 +137,39 @@ describe('Authentication - Account Confirmation with Token', () => {
         expect(response.status).not.toBe(401)
     })
 })
+
+
+describe('Authentication - Login', () => {
+    it('Should display validation errors when the form is empty', async () => {
+        const response = await request(server)
+            .post('/api/auth/login/')
+            .send({})
+
+        const loginMock = jest.spyOn(AuthController, 'login')
+
+        expect(response.status).toBe(400)
+        expect(response.body).toHaveProperty('errors')
+        expect(response.body.errors).toHaveLength(2)
+
+        expect(loginMock).not.toHaveBeenCalled()
+    })
+
+    it('Should return 400 bad request when the email is invalid', async () => {
+        const response = await request(server)
+            .post('/api/auth/login/')
+            .send({
+                "password": "password",
+                "email": "not_valid"
+            })
+
+        const loginMock = jest.spyOn(AuthController, 'login')
+
+        expect(response.status).toBe(400)
+        expect(response.body).toHaveProperty('errors')
+        expect(response.body.errors).toHaveLength(1)
+        expect(response.body.erros[0].msg).toBe('Email no válido"')
+
+        expect(loginMock).not.toHaveBeenCalled()
+
+    })
+})
