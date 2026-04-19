@@ -1,6 +1,7 @@
 import request from 'supertest'
 import server, { connectDB } from '../../server'
 import { AuthController } from '../../controllers/AuthController'
+import User from '../../models/User'
 
 describe('Authentication - Create Account', () => {
     it('Should display validation errors when form is empty', async () => {
@@ -167,9 +168,80 @@ describe('Authentication - Login', () => {
         expect(response.status).toBe(400)
         expect(response.body).toHaveProperty('errors')
         expect(response.body.errors).toHaveLength(1)
-        expect(response.body.erros[0].msg).toBe('Email no válido"')
+        expect(response.body.errors[0].msg).toBe('Email no válido')
 
         expect(loginMock).not.toHaveBeenCalled()
+
+    })
+
+    it('Should return a 400 error if the user is not found', async () => {
+        const response = await request(server)
+            .post('/api/auth/login/')
+            .send({
+                "password": "password",
+                "email": "user_not_found@test.com"
+            })
+
+
+        expect(response.status).toBe(404)
+        expect(response.body).toHaveProperty('error')
+        expect(response.body.error).toBe('Usuario No Encontrado')
+
+    })
+
+    it('Should return a 403 error if the user account is not confirmed', async () => {
+
+        (jest.spyOn(User, 'findOne') as jest.Mock)
+            .mockResolvedValue({
+                id: 1,
+                confirmed: false,
+                password: "hashedPassword",
+                email: "user_not_confirmed@test.com"
+            })
+
+        const response = await request(server)
+            .post('/api/auth/login/')
+            .send({
+                "password": "password",
+                "email": "user_not_confirmed@test.com"
+            })
+
+
+        expect(response.status).toBe(403)
+        expect(response.body).toHaveProperty('error')
+        expect(response.body.error).toBe('La cuenta no ha sido confirmada')
+
+        expect(response.status).not.toBe(200)
+        expect(response.status).not.toBe(404)
+
+    })
+
+    it('Should return a 403 error if the user account is not confirmed', async () => {
+
+        const userData = {
+            name: "Test",
+            password: "password",
+            email: "user_not_confirmed@test.com"
+        }
+
+        await request(server)
+            .post('/api/auth/create-account')
+            .send(userData)
+
+        const response = await request(server)
+            .post('/api/auth/login/')
+            .send({
+                "password": userData.password,
+                "email": userData.email
+            })
+
+
+        expect(response.status).toBe(403)
+        expect(response.body).toHaveProperty('error')
+        expect(response.body.error).toBe('La cuenta no ha sido confirmada')
+
+        expect(response.status).not.toBe(200)
+        expect(response.status).not.toBe(404)
 
     })
 })
