@@ -2,6 +2,9 @@ import request from 'supertest'
 import server, { connectDB } from '../../server'
 import { AuthController } from '../../controllers/AuthController'
 import User from '../../models/User'
+import * as authUtils from '../../utils/auth'
+import * as jwtUtils from '../../utils/jwt'
+import { check } from 'express-validator'
 
 describe('Authentication - Create Account', () => {
     it('Should display validation errors when form is empty', async () => {
@@ -141,6 +144,11 @@ describe('Authentication - Account Confirmation with Token', () => {
 
 
 describe('Authentication - Login', () => {
+
+    beforeEach(() => {
+        jest.clearAllMocks()
+    })
+
     it('Should display validation errors when the form is empty', async () => {
         const response = await request(server)
             .post('/api/auth/login/')
@@ -243,5 +251,69 @@ describe('Authentication - Login', () => {
         expect(response.status).not.toBe(200)
         expect(response.status).not.toBe(404)
 
+    })
+
+    it('Should return a 401 error if the password is incorrect', async () => {
+
+        const findOne = (jest.spyOn(User, 'findOne') as jest.Mock)
+            .mockResolvedValue({
+                id: 1,
+                confirmed: true,
+                password: "hashedPassword"
+            })
+
+        const checkPassword = jest.spyOn(authUtils, 'checkPassword').mockResolvedValue(false)
+
+        const response = await request(server)
+            .post('/api/auth/login/')
+            .send({
+                "password": "wrongPassword",
+                "email": "test@test.com"
+            })
+
+
+        expect(response.status).toBe(401)
+        expect(response.body).toHaveProperty('error')
+        expect(response.body.error).toBe('Password Incorrecto')
+
+        expect(response.status).not.toBe(200)
+        expect(response.status).not.toBe(404)
+        expect(response.status).not.toBe(403)
+
+        expect(findOne).toHaveBeenCalledTimes(1)
+        expect(checkPassword).toHaveBeenCalledTimes(1)
+    })
+
+    it('Should return a 401 error if the password is incorrect', async () => {
+
+        const findOne = (jest.spyOn(User, 'findOne') as jest.Mock)
+            .mockResolvedValue({
+                id: 1,
+                confirmed: true,
+                password: "hashedPassword"
+            })
+
+        const checkPassword = jest.spyOn(authUtils, 'checkPassword').mockResolvedValue(true)
+        const generateJWT = jest.spyOn(jwtUtils, 'generateJWT').mockReturnValue('jwt_token')
+
+        const response = await request(server)
+            .post('/api/auth/login/')
+            .send({
+                "password": "correctPassword",
+                "email": "test@test.com"
+            })
+
+        expect(response.status).toBe(200)
+        expect(response.body).toEqual('jwt_token')
+        expect(findOne).toHaveBeenCalled()
+        expect(findOne).toHaveBeenCalledTimes(1)
+
+        expect(checkPassword).toHaveBeenCalled()
+        expect(checkPassword).toHaveBeenCalledTimes(1)
+        expect(checkPassword).toHaveBeenCalledWith('correctPassword', 'hashedPassword')
+
+        expect(generateJWT).toHaveBeenCalled()
+        expect(generateJWT).toHaveBeenCalledTimes(1)
+        expect(generateJWT).toHaveBeenCalledWith(500)
     })
 })
