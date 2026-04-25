@@ -1,10 +1,12 @@
 "use server"
 
-import { RegisterSchema } from "@/src/schemas"
+import { ErrorResponseSchema, RegisterSchema, SuccessScheme } from "@/src/schemas"
 import { error } from "console";
+import { success } from "zod";
 
 type ActionStateType = {
-    errors: string[];
+    errors: string[]
+    success: string
 }
 
 export async function register(prevState: ActionStateType, formData: FormData) {
@@ -21,7 +23,7 @@ export async function register(prevState: ActionStateType, formData: FormData) {
     if (!register.success) {
         const errors = register.error.issues.map(error => error.message)
 
-        return { errors }
+        return { errors, success: prevState.success }
     }
 
     //Registrar Usuario
@@ -37,10 +39,19 @@ export async function register(prevState: ActionStateType, formData: FormData) {
             password: register.data.password,
         })
     })
-
     const json = await req.json()
 
+    if(req.status === 409){
+        const {error} = ErrorResponseSchema.parse(json)
+        return {
+            errors: [error],
+            success: ''
+        }
+    }
+    const success = SuccessScheme.parse(json)
+
     return {
-        errors: []
+        errors: [],
+        success
     }
 }

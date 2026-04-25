@@ -13,3 +13,8 @@ export const RegisterSchema = z.object({
     message: 'Los passwords no son iguales',
     path: ['password_confirmation']
 })
+
+export const SuccessScheme = z.string()
+export const ErrorResponseSchema = z.object({
+    error: z.string()
+})
