@@ -5,8 +5,11 @@ import { useActionState, useEffect, useState } from 'react'
 import { useFormState } from 'react-dom'
 import ErrorMessage from '../ui/ErrorMessage'
 import SuccessMessage from '../ui/SuccessMessage'
+import { toast } from 'react-toastify'
+import { useRouter } from 'next/navigation'
 
 export default function ConfirmAccountForm() {
+    const router = useRouter()
 
     const [isComplete, setIsComplete] = useState(false)
     const [token, setToken] = useState("")
@@ -24,7 +27,24 @@ export default function ConfirmAccountForm() {
 
     }, [isComplete])
 
+    useEffect(() => {
+        if (state.errors) {
+            state.errors.forEach(error => {
+                toast.error(error)
+            })
+        }
+        if (state.success) {
+            toast.success(state.success, {
+                onClose: () => {
+                    router.push('/auth/login')
+                }
+            })
+        }
+
+    }, [state])
+
     const handleChange = (token: string) => {
+        setIsComplete(false)
         setToken(token)
     }
 
@@ -34,8 +54,6 @@ export default function ConfirmAccountForm() {
 
     return (
         <>
-            {state.errors.map(error => <ErrorMessage>{error}</ErrorMessage>)}
-            {state.success && <SuccessMessage>{state.success}</SuccessMessage>}
             <div className='flex justify-center gap-5 my-10'>
                 <PinInput
                     value={token}
