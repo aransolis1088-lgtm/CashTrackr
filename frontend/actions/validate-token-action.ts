@@ -1,6 +1,7 @@
 "use server"
 
-import { ErrorResponseSchema, TokenScheme } from "@/src/schemas"
+import SuccessMessage from "@/components/ui/SuccessMessage"
+import { ErrorResponseSchema, SuccessScheme, TokenScheme } from "@/src/schemas"
 import { success } from "zod"
 
 
@@ -41,8 +42,10 @@ export async function validateToken(token: string, prevState: ActionStateType) {
         }
     }
 
+    const success = SuccessScheme.parse(json)
+
     return {
         errors: [],
-        success: ''
+        success
     }
 }
