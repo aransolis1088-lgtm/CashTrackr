@@ -1,14 +1,15 @@
 "use server"
 
-import { ResetPasswordSchema } from "@/src/schemas"
-import { success } from "zod"
+import { ErrorResponseSchema, ResetPasswordSchema, SuccessScheme } from "@/src/schemas"
+import { json, success } from "zod"
+import { ur } from "zod/locales"
 
 type ActionStateType = {
     errors: string[],
     success: string
 }
 
-export async function resetPassword(prevState: ActionStateType, formData: FormData) {
+export async function resetPassword(token: string, prevState: ActionStateType, formData: FormData) {
     const resetPasswordInput = {
         password: formData.get('password'),
         password_confirmation: formData.get('password_confirmation')
@@ -23,10 +24,31 @@ export async function resetPassword(prevState: ActionStateType, formData: FormDa
         }
     }
 
+    const url = `${process.env.API_URL}/auth/reset-password/${token}`
 
+    const req = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            password: resetPasswordInput.password
+        })
+    })
 
+    const json = await req.json()
+
+    if (!req.ok) {
+        const { error } = ErrorResponseSchema.parse(json)
+        return {
+            errors: [error],
+            success: ''
+        }
+    }
+
+    const success = SuccessScheme.parse(json)
     return {
         errors: [],
-        success: ''
+        success
     }
 }
