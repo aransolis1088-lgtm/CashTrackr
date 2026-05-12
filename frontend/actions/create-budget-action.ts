@@ -1,8 +1,7 @@
 "use server"
 
+import getToken from "@/src/auth/token"
 import { DraftBudgetSchema, SuccessScheme } from "@/src/schemas"
-import { cookies } from "next/headers"
-import { success } from "zod"
 
 type ActionStateType = {
     errors: string[],
@@ -22,7 +21,7 @@ export async function createBudget(prevState: ActionStateType, formData: FormDat
         }
     }
 
-    const token = cookies().get('CASHTRACKR_TOKEN')?.value
+    const token = getToken()
     const url = `${process.env.API_URL}/budgets`
 
     const req = await fetch(url, {
