@@ -52,7 +52,6 @@ export class AuthController {
         await user.save()
         res.json("Cuenta confirmada correctamente")
     }
-
     static login = async (req: Request, res: Response) => {
         const { email, password } = req.body
 
@@ -77,7 +76,6 @@ export class AuthController {
         const token = generateJWT(user.id);
         res.json(token)
     }
-
     static forgotPassword = async (req: Request, res: Response) => {
         const { email } = req.body
 
@@ -98,7 +96,6 @@ export class AuthController {
 
         res.json('Revisa tu email para instrucciones')
     }
-
     static validateToken = async (req: Request, res: Response) => {
         const { token } = req.body
 
@@ -110,7 +107,6 @@ export class AuthController {
         }
         res.json('Token valido, asigna un nuevo password')
     }
-
     static resetPasswordWithToken = async (req: Request, res: Response) => {
         const { token } = req.params
         const { password } = req.body
@@ -130,11 +126,9 @@ export class AuthController {
         res.json('El password se modifico correctamente')
 
     }
-
     static user = async (req: Request, res: Response) => {
         res.json(req.user)
     }
-
     static updateCurrentUserPassword = async (req: Request, res: Response) => {
         const { current_password, password } = req.body
         const { id } = req.user
@@ -151,7 +145,6 @@ export class AuthController {
 
         res.json('El password se modifico correctamente')
     }
-
     static checkPassword = async (req: Request, res: Response) => {
         const { password } = req.body
         const { id } = req.user

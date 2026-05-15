@@ -14,16 +14,13 @@ export class ExpensesController {
             res.status(500).json({ error: 'Hubo un error' })
         }
     }
-
     static getById = async (req: Request, res: Response) => {
         res.json(req.expense)
     }
-
     static updateById = async (req: Request, res: Response) => {
         await req.expense.update(req.body)
         res.json('Se actualizó correctamente')
     }
-
     static deleteById = async (req: Request, res: Response) => {
         await req.expense.destroy()
         res.json('Gasto Eliminado')

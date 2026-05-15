@@ -19,7 +19,6 @@ export class BudgetController {
 
         }
     }
-
     static create = async (req: Request, res: Response) => {
         try {
             const budget = await Budget.create(req.body)
@@ -31,19 +30,16 @@ export class BudgetController {
             res.status(500).json({ error: 'Hubo un error' })
         }
     }
-
     static getById = async (req: Request, res: Response) => {
         const budget = await Budget.findByPk(req.budget.id, {
             include: [Expense]
         })
         res.json(budget)
     }
-
     static updateById = async (req: Request, res: Response) => {
         await req.budget.update(req.body)
         res.json('Presupuesto Actualizado Correctamente')
     }
-
     static deleteById = async (req: Request, res: Response) => {
         await req.budget.destroy()
         res.json('Presupuesto Eliminado Correctamente')
