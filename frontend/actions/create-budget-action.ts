@@ -2,6 +2,7 @@
 
 import getToken from "@/src/auth/token"
 import { DraftBudgetSchema, SuccessScheme } from "@/src/schemas"
+import { revalidatePath } from "next/cache"
 
 type ActionStateType = {
     errors: string[],
@@ -39,6 +40,8 @@ export async function createBudget(prevState: ActionStateType, formData: FormDat
     const json = await req.json()
 
     const success = SuccessScheme.parse(json)
+
+    revalidatePath('/admin')
 
     return {
         errors: [],

@@ -49,6 +49,8 @@ export const DraftBudgetSchema = z.object({
         .min(1, { message: 'Cantidad no válida' }),
 })
 
+export const PasswordValidationSchema = z.string().min(1, { message: 'El Password no puede ir vacio' })
+
 export const SuccessScheme = z.string()
 
 export const ErrorResponseSchema = z.object({
