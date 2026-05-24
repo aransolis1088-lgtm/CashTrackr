@@ -66,6 +66,14 @@ router.get('/user',
     AuthController.user
 )
 
+router.put('/user',
+    authenticate,
+    body('name').notEmpty().withMessage('El nombre no puede ir vacio'),
+    body('email').isEmail().withMessage('E-mail no válido'),
+    handleInputErrors,
+    AuthController.updateUser
+)
+
 router.post('/update-password',
     authenticate,
     body('password')
@@ -83,5 +91,7 @@ router.post('/check-password',
     handleInputErrors,
     AuthController.checkPassword
 )
+
+
 
 export default router

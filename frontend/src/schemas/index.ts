@@ -15,6 +15,15 @@ export const RegisterSchema = z.object({
     path: ['password_confirmation']
 })
 
+export const ProfileFormSchema = z.object({
+    email: z.string()
+        .min(1, { message: 'El email es obligatorio' })
+        .email({ message: 'Email no válido' }),
+    name: z.string()
+        .min(1, { message: 'Tu nombre no puede ir vacio' })
+
+})
+
 export const LoginSchema = z.object({
     email: z.string()
         .min(1, { message: 'El Email es Obligatorio' })
@@ -49,6 +58,16 @@ export const DraftBudgetSchema = z.object({
         number({ message: 'Cantidad no válida' })
         .min(1, { message: 'Cantidad no válida' }),
 })
+
+export const UpdatePasswordSchema = z.object({
+    current_password: z.string().min(1, { message: 'El Password no puede ir vacio' }),
+    password: z.string()
+        .min(8, { message: 'El Nuevo Password debe ser de al menos 8 caracteres' }),
+    password_confirmation: z.string()
+}).refine((data) => data.password === data.password_confirmation, {
+    message: "Los Passwords no son iguales",
+    path: ["password_confirmation"]
+});
 
 export const PasswordValidationSchema = z.string().min(1, { message: 'El Password no puede ir vacio' })
 
@@ -89,6 +108,7 @@ export const BudgetAPIResponseSchema = z.object({
     updatedAt: z.string(),
     expenses: z.array(ExpenseAPIResponseSchema)
 })
+
 
 export const BudgetsAPIResponseSchema = z.array(BudgetAPIResponseSchema.omit({ expenses: true }))
 

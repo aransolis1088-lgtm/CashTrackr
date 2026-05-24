@@ -9,8 +9,7 @@ type ActionStateType = {
 
 
 export async function authenticate(prevState: ActionStateType, formData: FormData) {
-    console.log(prevState)
-    console.log(formData)
+
 
     const loginCredentials = {
         email: formData.get('email'),
