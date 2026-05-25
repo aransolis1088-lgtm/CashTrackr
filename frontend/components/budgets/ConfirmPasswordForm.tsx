@@ -20,18 +20,18 @@ export default function ConfirmPasswordForm() {
         success: ''
     })
 
-    useEffect(() => {
-        if (state.success) {
-            toast.success(state.success)
-            closeModal()
-        }
-    }, [state])
-
     const closeModal = () => {
         const hideModal = new URLSearchParams(searchParams.toString())
         hideModal.delete('deleteBudgetId')
         router.replace(`${pathname}?${hideModal}`)
     }
+
+    useEffect(() => {
+        if (state.success) {
+            toast.success(state.success)
+            closeModal()
+        }
+    }, [state, closeModal])
 
     return (
         <>

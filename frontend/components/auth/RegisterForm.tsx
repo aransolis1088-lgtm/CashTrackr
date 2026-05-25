@@ -1,7 +1,7 @@
 "use client"
 
 import { register } from "@/actions/create-account-action"
-import { useActionState, useEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 import { useFormState } from "react-dom"
 import ErrorMessage from "../ui/ErrorMessage"
 import SuccessMessage from "../ui/SuccessMessage"
@@ -26,7 +26,7 @@ export default function RegisterForm() {
             noValidate
             action={dispatch}
         >
-            {state.errors.map(error => <ErrorMessage>{error}</ErrorMessage>)}
+            {state.errors.map(error => <ErrorMessage key={error}>{error}</ErrorMessage>)}
             {state.success && <SuccessMessage>{state.success}</SuccessMessage>}
             <div className="flex flex-col gap-2">
                 <label

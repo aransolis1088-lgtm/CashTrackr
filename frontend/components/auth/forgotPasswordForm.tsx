@@ -4,7 +4,6 @@ import { forgotPassword } from "@/actions/forgot-password-action"
 import { useEffect } from "react"
 import { useFormState } from "react-dom"
 import { toast } from "react-toastify"
-import { success } from "zod"
 
 export default function ForgotPasswordForm() {
 
