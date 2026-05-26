@@ -29,6 +29,7 @@ export default function EditExpenseForm({ closeModal }: { closeModal: () => void
     useEffect(() => {
         const url = `${process.env.NEXT_PUBLIC_URL}/admin/api/budgets/${budgetId}/expenses/${expenseId}`
 
+        console.log(url)
         fetch(url)
             .then(res => res.json())
             .then(data => {
